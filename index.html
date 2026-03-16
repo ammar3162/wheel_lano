@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>لانو - النظام الشامل</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Cinzel:wght@900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --gold-foil: linear-gradient(135deg, #bf953f, #fcf6ba, #b38728, #fbf5b7, #aa771c);
+      --lano-burgundy: #6f1d1b;
+      --paper: #f2e6d0;
+      --vintage-red: #8b1f24;
+      --ink: #1b1b1b;
+      --success-green: #2e7d32;
+      --error-red: #c62828;
+    }
+
+    * { 
+      box-sizing: border-box; 
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: radial-gradient(circle at center, #2a0a0b 0%, #070102 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: "Amiri", serif;
+      padding: 10px;
+    }
+
+    .reservation-box {
+      width: 100%;
+      max-width: 550px;
+      background-color: var(--paper);
+      background-image: url("https://www.transparenttextures.com/patterns/cream-paper.png");
+      border-radius: 30px;
+      position: relative;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.8);
+      border: 2px solid #bf953f;
+      overflow: hidden;
+    }
+
+    .inner-content { 
+      padding: 35px 20px; 
+      position: relative; 
+      z-index: 6; 
+    }
+
+    .header-section h1 {
+      font-family: 'Cinzel', serif; 
+      font-size: 40px; 
+      text-align: center; 
+      margin: 0;
+      background: var(--gold-foil); 
+      -webkit-background-clip: text; 
+      -webkit-text-fill-color: transparent;
+      position: relative;
+    }
+
+    .header-section h1::after {
+      content: "";
+      position: absolute;
+      bottom: -10px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 100px;
+      height: 2px;
+      background: var(--gold-foil);
+    }
+
+    /* أزرار التبديل */
+    .tabs {
+      display: flex; 
+      gap: 8px; 
+      margin: 30px 0 20px;
+      background: rgba(0,0,0,0.05); 
+      padding: 5px; 
+      border-radius: 12px;
+    }
+
+    .tab-btn {
+      flex: 1; 
+      padding: 12px 8px; 
+      border: none; 
+      background: transparent;
+      color: var(--lano-burgundy); 
+      cursor: pointer; 
+      font-family: 'Amiri', serif;
+      font-weight: bold; 
+      font-size: 16px; 
+      border-radius: 8px; 
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .tab-btn.active { 
+      background: var(--lano-burgundy); 
+      color: var(--paper); 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+    }
+
+    .tab-btn i {
+      margin-left: 5px;
+    }
+
+    .section { 
+      display: none; 
+      animation: fadeIn 0.4s ease; 
+    }
+    .section.active { 
+      display: block; 
+    }
+
+    @keyframes fadeIn { 
+      from { 
+        opacity: 0; 
+        transform: translateY(10px); 
+      } to { 
+        opacity: 1; 
+        transform: translateY(0); 
+      } 
+    }
+
+    /* المدخلات العامة */
+    .field-group { 
+      margin-bottom: 20px; 
+    }
+    label { 
+      font-size: 16px; 
+      color: var(--vintage-red); 
+      font-weight: bold; 
+      margin-bottom: 8px; 
+      display: block; 
+    }
+
+    .input-royal {
+      width: 100%; 
+      background: rgba(0,0,0,0.04); 
+      border: none;
+      border-bottom: 2px solid var(--vintage-red); 
+      padding: 12px;
+      font-family: 'Amiri', serif; 
+      font-size: 18px; 
+      text-align: center; 
+      outline: none;
+      transition: all 0.3s ease;
+    }
+
+    .input-royal:focus {
+      border-bottom: 2px solid var(--lano-burgundy);
+      background: rgba(0,0,0,0.08);
+    }
+
+    /* العجلة */
+    .input-row { 
+      display: flex; 
+      gap: 8px; 
+      margin-bottom: 10px; 
+    }
+    .names-tags { 
+      display: flex; 
+      flex-wrap: wrap; 
+      gap: 5px; 
+      margin-bottom: 15px; 
+      max-height: 80px; 
+      overflow-y: auto; 
+      padding: 5px; 
+      border-radius: 10px; 
+    }
+    .tag { 
+      background: var(--lano-burgundy); 
+      color: var(--paper); 
+      padding: 3px 10px; 
+      border-radius: 12px; 
+      font-size: 12px; 
+      border: 1px solid #bf953f; 
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .tag:hover {
+      background: var(--vintage-red);
+      transform: scale(1.05);
+    }
+
+    #wheel-wrapper { 
+      position: relative; 
+      width: 300px; 
+      height: 300px; 
+      margin: 0 auto 20px; 
+    }
+    #canvas { 
+      width: 100%; 
+      height: 100%; 
+      border-radius: 50%; 
+      border: 6px solid #bf953f; 
+      background: white; 
+      box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+    }
+    #pointer {
+      position: absolute; 
+      top: -15px; 
+      left: 50%; 
+      transform: translateX(-50%);
+      width: 0; 
+      height: 0; 
+      border-left: 15px solid transparent; 
+      border-right: 15px solid transparent;
+      border-top: 30px solid var(--vintage-red); 
+      z-index: 20;
+      filter: drop-shadow(0 3px 3px rgba(0,0,0,0.3));
+    }
+
+    .btn-main {
+      width: 100%; 
+      background: var(--lano-burgundy); 
+      color: var(--paper);
+      border: 1px solid #bf953f; 
+      padding: 18px; 
+      font-family: 'Cinzel', serif;
+      font-weight: bold; 
+      font-size: 18px; 
+      border-radius: 12px; 
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-main:hover {
+      background: var(--vintage-red);
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+    }
+
+    .btn-main:disabled { 
+      opacity: 0.4; 
+      cursor: not-allowed;
+    }
+
+    .btn-main:disabled:hover {
+      transform: none;
+      box-shadow: none;
+    }
+
+    .btn-secondary {
+      background: transparent;
+      color: var(--lano-burgundy);
+      border: 2px solid var(--lano-burgundy);
+    }
+
+    .btn-secondary:hover {
+      background: var(--lano-burgundy);
+      color: var(--paper);
+    }
+
+    .result-box {
+      margin-top: 15px; 
+      text-align: center; 
+      padding: 15px;
+      background: rgba(139, 31, 36, 0.05); 
+      border: 1px dashed var(--gold-foil); 
+      border-radius: 12px; 
+      min-height: 50px;
+      transition: all 0.3s ease;
+    }
+
+    .result-box.success {
+      background: rgba(46, 125, 50, 0.1);
+      border-color: var(--success-green);
+    }
+
+    .result-box.error {
+      background: rgba(198, 40, 40, 0.1);
+      border-color: var(--error-red);
+    }
+
+    .split-details {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .person-amount {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: rgba(0,0,0,0.03);
+      border-radius: 8px;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: var(--lano-burgundy);
+      color: var(--paper);
+      padding: 12px 24px;
+      border-radius: 30px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      opacity: 0;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .floating-btn {
+      position: fixed;
+      bottom: 20px;
+      left: 20px;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      background: var(--lano-burgundy);
+      color: var(--paper);
+      border: 2px solid #bf953f;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+      z-index: 100;
+    }
+
+    .floating-btn:hover {
+      transform: scale(1.1);
+    }
+
+    @media (max-width: 480px) {
+      .header-section h1 {
+        font-size: 32px;
+      }
+      
+      .tab-btn {
+        font-size: 14px;
+        padding: 10px 5px;
+      }
+      
+      #wheel-wrapper {
+        width: 250px;
+        height: 250px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="reservation-box">
+  <div class="inner-content">
+    <div class="header-section">
+      <h1>LANO</h1>
+    </div>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('split-tab', this)">
+        <i class="fas fa-calculator"></i> تقسيم الفاتورة
+      </button>
+      <button class="tab-btn" onclick="switchTab('wheel-tab', this)">
+        <i class="fas fa-dharmachakra"></i> مين يحاسب؟
+      </button>
+    </div>
+
+    <div id="split-tab" class="section active">
+      <div class="field-group">
+        <label>إجمالي المبلغ (ريال)</label>
+        <input type="number" id="totalAmount" class="input-royal" placeholder="0.00" min="0" step="0.01">
+      </div>
+      <div class="field-group">
+        <label>عدد الأشخاص</label>
+        <input type="number" id="peopleCount" class="input-royal" placeholder="كم شخص؟" min="1">
+      </div>
+      <div class="field-group">
+        <label>نوع التقسيم</label>
+        <div class="input-row">
+          <button id="equalSplit" class="btn-main btn-secondary" onclick="setSplitType('equal')">تساوي</button>
+          <button id="customSplit" class="btn-main btn-secondary" onclick="setSplitType('custom')">مخصص</button>
+        </div>
+      </div>
+      <div id="customSplitDetails" style="display: none;">
+        <div class="field-group">
+          <label>تفاصيل التقسيم المخصص</label>
+          <div id="customSplitInputs"></div>
+        </div>
+      </div>
+      <button class="btn-main" onclick="calculateSplit()">
+        <i class="fas fa-calculator"></i> احسب التقسيم
+      </button>
+      <div id="splitResult" class="result-box" style="display:none;"></div>
+    </div>
+
+    <div id="wheel-tab" class="section">
+      <div class="input-row">
+        <input type="text" id="nameInput" class="input-royal" placeholder="ادخل الاسم..." onkeypress="if(event.key==='Enter')addName()">
+        <button onclick="addName()" style="background:var(--gold-foil); border:none; padding:0 15px; border-radius:8px; cursor:pointer; font-weight:bold;">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div id="namesTags" class="names-tags"></div>
+      
+      <div id="wheel-wrapper">
+        <div id="pointer"></div>
+        <canvas id="canvas" width="800" height="800"></canvas>
+      </div>
+      <button id="spinBtn" class="btn-main" onclick="spinWheel()" disabled>
+        <i class="fas fa-sync-alt"></i> لف العجلة
+      </button>
+      <div id="winnerResult" class="result-box" style="display:none;"></div>
+    </div>
+
+  </div>
+</div>
+
+<div class="floating-btn" onclick="resetAll()">
+  <i class="fas fa-redo"></i>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+  // Initialize variables
+  let names = [];
+  let rotation = 0;
+  let splitType = 'equal';
+  
+  // Get canvas context
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  
+  // Show toast notification
+  function showToast(message, duration = 3000) {
+    const toast = document.getElementById('toast');
+    toast.textContent = message;
+    toast.classList.add('show');
+    
+    setTimeout(() => {
+      toast.classList.remove('show');
+    }, duration);
+  }
+  
+  // Switch tabs
+  function switchTab(tabId, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(tabId).classList.add('active');
+    btn.classList.add('active');
+  }
+  
+  // Set split type
+  function setSplitType(type) {
+    splitType = type;
+    
+    // Update button styles
+    document.getElementById('equalSplit').classList.toggle('btn-secondary', type !== 'equal');
+    document.getElementById('customSplit').classList.toggle('btn-secondary', type !== 'custom');
+    
+    // Show/hide custom split details
+    document.getElementById('customSplitDetails').style.display = type === 'custom' ? 'block' : 'none';
+    
+    if (type === 'custom') {
+      generateCustomSplitInputs();
+    }
+  }
+  
+  // Generate custom split inputs
+  function generateCustomSplitInputs() {
+    const count = parseInt(document.getElementById('peopleCount').value) || 1;
+    const container = document.getElementById('customSplitInputs');
+    container.innerHTML = '';
+    
+    for (let i = 1; i <= count; i++) {
+      const input = document.createElement('div');
+      input.className = 'input-row';
+      input.innerHTML = `
+        <label style="flex: 1;">شخص ${i}:</label>
+        <input type="number" class="input-royal custom-amount" placeholder="المبلغ" min="0" step="0.01" data-person="${i}">
+      `;
+      container.appendChild(input);
+    }
+  }
+  
+  // Calculate split
+  function calculateSplit() {
+    const total = parseFloat(document.getElementById('totalAmount').value);
+    const count = parseInt(document.getElementById('peopleCount').value);
+    const res = document.getElementById('splitResult');
+    
+    // Validate inputs
+    if (!total || total <= 0) {
+      res.className = 'result-box error';
+      res.style.display = "block";
+      res.innerHTML = `<i class="fas fa-exclamation-circle"></i> الرجاء إدخال المبلغ الإجمالي الصحيح`;
+      return;
+    }
+    
+    if (!count || count <= 0) {
+      res.className = 'result-box error';
+      res.style.display = "block";
+      res.innerHTML = `<i class="fas fa-exclamation-circle"></i> الرجاء إدخال عدد الأشخاص الصحيح`;
+      return;
+    }
+    
+    res.className = 'result-box success';
+    res.style.display = "block";
+    
+    if (splitType === 'equal') {
+      const perPerson = total / count;
+      const rem = total % count;
+      
+      if (rem === 0 || total < 1) {
+        res.innerHTML = `
+          <div>الكل يدفع بالتساوي:</div>
+          <h2 style="color:var(--vintage-red); margin:5px 0;">${perPerson.toFixed(2)} ريال</h2>
+        `;
+      } else {
+        res.innerHTML = `
+          <div>الجميع يدفع: <strong>${perPerson.toFixed(2)} ريال</strong></div>
+          <div>والشخص الأخير يدفع: <strong style="color:var(--vintage-red)">${(perPerson + rem).toFixed(2)} ريال</strong></div>
+        `;
+      }
+    } else {
+      // Custom split
+      const customInputs = document.querySelectorAll('.custom-amount');
+      let customTotal = 0;
+      let amounts = [];
+      
+      customInputs.forEach(input => {
+        const amount = parseFloat(input.value) || 0;
+        customTotal += amount;
+        amounts.push({
+          person: input.dataset.person,
+          amount: amount
+        });
+      });
+      
+      if (Math.abs(customTotal - total) > 0.01) {
+        res.className = 'result-box error';
+        res.innerHTML = `<i class="fas fa-exclamation-circle"></i> مجموع المبالغ المدخلة (${customTotal.toFixed(2)}) لا يساوي المبلغ الإجمالي (${total.toFixed(2)})`;
+        return;
+      }
+      
+      // Display custom split results
+      let html = '<div class="split-details">';
+      amounts.forEach(item => {
+        html += `
+          <div class="person-amount">
+            <span>شخص ${item.person}:</span>
+            <span>${item.amount.toFixed(2)} ريال</span>
+          </div>
+        `;
+      });
+      html += '</div>';
+      
+      res.innerHTML = html;
+    }
+  }
+  
+  // Add name to wheel
+  function addName() {
+    const input = document.getElementById('nameInput');
+    const val = input.value.trim();
+    
+    if (!val) {
+      showToast('الرجاء إدخال اسم');
+      return;
+    }
+    
+    if (names.includes(val)) {
+      showToast('الاسم موجود بالفعل');
+      return;
+    }
+    
+    names.push(val);
+    input.value = '';
+    updateWheelUI();
+    showToast(`تم إضافة ${val}`);
+  }
+  
+  // Update wheel UI
+  function updateWheelUI() {
+    const container = document.getElementById('namesTags');
+    container.innerHTML = names.map((n, i) => 
+      `<span class="tag" onclick="removeName(${i})">${n} <i class="fas fa-times"></i></span>`
+    ).join('');
+    
+    document.getElementById('spinBtn').disabled = names.length < 2;
+    drawWheel();
+  }
+  
+  // Remove name from wheel
+  function removeName(index) {
+    const removedName = names[index];
+    names.splice(index, 1);
+    updateWheelUI();
+    showToast(`تم حذف ${removedName}`);
+  }
+  
+  // Draw wheel
+  function drawWheel() {
+    const n = names.length;
+    ctx.clearRect(0, 0, 800, 800);
+    
+    if (n === 0) {
+      // Draw empty wheel
+      ctx.beginPath();
+      ctx.fillStyle = '#f2e6d0';
+      ctx.arc(400, 400, 400, 0, 2 * Math.PI);
+      ctx.fill();
+      
+      ctx.fillStyle = '#6f1d1b';
+      ctx.font = 'bold 30px Amiri';
+      ctx.textAlign = "center";
+      ctx.fillText("أضف أسماء", 400, 400);
+      return;
+    }
+    
+    const angle = (2 * Math.PI) / n;
+    let fontSize = n > 50 ? 12 : (n > 20 ? 22 : 35);
+    
+    // Create gradient for each segment
+    const gradient1 = ctx.createRadialGradient(400, 400, 0, 400, 400, 400);
+    gradient1.addColorStop(0, '#6f1d1b');
+    gradient1.addColorStop(1, '#8b1f24');
+    
+    const gradient2 = ctx.createRadialGradient(400, 400, 0, 400, 400, 400);
+    gradient2.addColorStop(0, '#bf953f');
+    gradient2.addColorStop(1, '#b38728');
+    
+    names.forEach((name, i) => {
+      ctx.beginPath();
+      ctx.fillStyle = i % 2 === 0 ? gradient1 : gradient2;
+      ctx.moveTo(400, 400);
+      ctx.arc(400, 400, 400, i * angle, (i + 1) * angle);
+      ctx.fill();
+      
+      // Draw border
+      ctx.strokeStyle = '#f2e6d0';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+      
+      ctx.save();
+      ctx.translate(400, 400);
+      ctx.rotate(i * angle + angle / 2);
+      ctx.textAlign = "right";
+      ctx.fillStyle = i % 2 === 0 ? "#f2e6d0" : "#1b1b1b";
+      ctx.font = `bold ${fontSize}px Amiri`;
+      ctx.fillText(name, 380, fontSize / 3);
+      ctx.restore();
+    });
+    
+    // Draw center circle
+    ctx.beginPath();
+    ctx.fillStyle = '#f2e6d0';
+    ctx.arc(400, 400, 30, 0, 2 * Math.PI);
+    ctx.fill();
+    ctx.strokeStyle = '#bf953f';
+    ctx.lineWidth = 3;
+    ctx.stroke();
+  }
+  
+  // Spin wheel
+  function spinWheel() {
+    if (names.length < 2) return;
+    
+    const btn = document.getElementById('spinBtn');
+    const res = document.getElementById('winnerResult');
+    btn.disabled = true;
+    res.style.display = "block";
+    res.className = 'result-box';
+    res.innerHTML = `<i class="fas fa-spinner fa-spin"></i> جاري السحب...`;
+    
+    const extra = Math.floor(Math.random() * 360) + 3600;
+    rotation += extra;
+    canvas.style.transition = "transform 5s cubic-bezier(0.15, 0, 0.15, 1)";
+    canvas.style.transform = `rotate(${rotation}deg)`;
+
+    setTimeout(() => {
+      const actualDeg = rotation % 360;
+      const seg = 360 / names.length;
+      // The correct formula to match the top pointer
+      const winnerIdx = Math.floor(((360 - actualDeg + 270) % 360) / seg);
+      const winner = names[winnerIdx];
+      
+      res.className = 'result-box success';
+      res.innerHTML = `
+        <div>المختار هو:</div>
+        <h2 style="color:var(--vintage-red); margin:5px 0;">✨ ${winner} ✨</h2>
+      `;
+      
+      btn.disabled = false;
+    }, 5000);
+  }
+  
+  // Reset all data
+  function resetAll() {
+    if (confirm('هل أنت متأكد من مسح كل البيانات؟')) {
+      names = [];
+      rotation = 0;
+      
+      // Clear inputs
+      document.getElementById('totalAmount').value = '';
+      document.getElementById('peopleCount').value = '';
+      document.getElementById('nameInput').value = '';
+      document.getElementById('splitResult').style.display = 'none';
+      document.getElementById('winnerResult').style.display = 'none';
+      
+      // Reset UI
+      updateWheelUI();
+      
+      showToast('تم مسح جميع البيانات');
+    }
+  }
+  
+  // Initialize the app
+  document.addEventListener('DOMContentLoaded', function() {
+    // Initialize wheel
+    drawWheel();
+    
+    // Set default split type
+    setSplitType('equal');
+    
+    // Add event listeners
+    document.getElementById('peopleCount').addEventListener('change', function() {
+      if (splitType === 'custom') {
+        generateCustomSplitInputs();
+      }
+    });
+  });
+</script>
+</body>
+</html>
